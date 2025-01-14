@@ -1,26 +1,42 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+'use client'
 
-const inter = Inter({ subsets: ["latin"] });
+import { useState, useEffect } from 'react'
+import { Inter } from "next/font/google"
+import "./globals.css"
 
-export const metadata: Metadata = {
-  title: "MKAsset Management",
-  description: "待修資產追蹤系統",
-};
+const inter = Inter({ subsets: ["latin"] })
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const [darkMode, setDarkMode] = useState(false)
+
+  useEffect(() => {
+    // 從 localStorage 讀取主題設置
+    const isDark = localStorage.getItem('darkMode') === 'true'
+    setDarkMode(isDark)
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+    }
+  }, [])
+
+  // 切換深色模式
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode
+    setDarkMode(newDarkMode)
+    localStorage.setItem('darkMode', String(newDarkMode))
+    document.documentElement.classList.toggle('dark')
+  }
+
   return (
-    <html lang="zh-TW">
-      <body className={inter.className}>
-        <main className="min-h-screen bg-gray-100">
+    <html lang="zh-TW" className={darkMode ? 'dark' : ''}>
+      <body className={`${inter.className} dark:bg-gray-900`}>
+        <main className="min-h-screen bg-gray-100 dark:bg-gray-900">
           {children}
         </main>
       </body>
     </html>
-  );
+  )
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { format, addDays, addMonths, isSameDay } from 'date-fns'
-import { Search,  Wrench, RotateCcw } from 'lucide-react'
+import { Search,  Wrench, RotateCcw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 
 // 初始化 Supabase 客戶端
 const supabase = createClient(
@@ -35,6 +35,11 @@ const quickDates: QuickDate[] = [
   { label: '一個半月', months: 1.5 },
 ]
 
+interface SortConfig {
+  key: keyof Asset | null
+  direction: 'asc' | 'desc'
+}
+
 export default function DashboardPage() {
   const [assets, setAssets] = useState<Asset[]>([])
   const [showAddForm, setShowAddForm] = useState(false)
@@ -59,6 +64,10 @@ export default function DashboardPage() {
     numbers: number
     names: number
   }>({ numbers: -1, names: -1 })
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: null,
+    direction: 'asc'
+  })
 
   // 當表單打開時自動聚焦到財產編號輸入框
   useEffect(() => {
@@ -118,6 +127,43 @@ export default function DashboardPage() {
 
       return true
     })
+
+  // 排序功能
+  const handleSort = (key: keyof Asset) => {
+    setSortConfig(prevConfig => ({
+      key,
+      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+    }))
+  }
+
+  // 獲取排序圖標
+  const getSortIcon = (key: keyof Asset) => {
+    if (sortConfig.key !== key) {
+      return <ArrowUpDown className="w-4 h-4 ml-1" />
+    }
+    return sortConfig.direction === 'asc' ? 
+      <ArrowUp className="w-4 h-4 ml-1" /> : 
+      <ArrowDown className="w-4 h-4 ml-1" />
+  }
+
+  // 排序資產
+  const sortedAssets = [...filteredAssets].sort((a, b) => {
+    if (!sortConfig.key) return 0
+
+    const aValue = a[sortConfig.key]
+    const bValue = b[sortConfig.key]
+
+    if (aValue === null || bValue === null) return 0
+
+    let comparison = 0
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      comparison = aValue.localeCompare(bValue)
+    } else {
+      comparison = aValue > bValue ? 1 : -1
+    }
+
+    return sortConfig.direction === 'asc' ? comparison : -comparison
+  })
 
   // 處理快速日期選擇
   const handleQuickDate = (quickDate: QuickDate) => {
@@ -268,10 +314,10 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-extrabold">待修資產列表</h2>
+          <h2 className="text-3xl font-extrabold dark:text-white">待修資產列表</h2>
           <button
             onClick={() => setShowAddForm(true)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
           >
             新增資產
           </button>
@@ -281,14 +327,14 @@ export default function DashboardPage() {
           {/* 搜尋框 */}
           <div className="relative flex-1 max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+              <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
             </div>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="搜尋財產編號或品項名稱..."
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 sm:text-sm"
             />
           </div>
 
@@ -459,45 +505,77 @@ export default function DashboardPage() {
       )}
 
       {/* 資產列表 */}
-      <div className="bg-white shadow rounded-lg overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[150px]">
-                財產編號
+              <th 
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[150px] cursor-pointer group"
+                onClick={() => handleSort('asset_number')}
+              >
+                <div className="flex items-center">
+                  財產編號
+                  <span className="text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {getSortIcon('asset_number')}
+                  </span>
+                </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[500px]">
-                品項名稱
+              <th 
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[500px] cursor-pointer group"
+                onClick={() => handleSort('name')}
+              >
+                <div className="flex items-center">
+                  品項名稱
+                  <span className="text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {getSortIcon('name')}
+                  </span>
+                </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[120px]">
-                預計追蹤日期
+              <th 
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[120px] cursor-pointer group"
+                onClick={() => handleSort('tracking_date')}
+              >
+                <div className="flex items-center">
+                  預計追蹤日期
+                  <span className="text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {getSortIcon('tracking_date')}
+                  </span>
+                </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">
-                狀態
+              <th 
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[100px] cursor-pointer group"
+                onClick={() => handleSort('status')}
+              >
+                <div className="flex items-center">
+                  狀態
+                  <span className="text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {getSortIcon('status')}
+                  </span>
+                </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[300px]">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider min-w-[300px]">
                 修復資訊
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredAssets.map((asset) => (
-              <tr key={asset.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            {sortedAssets.map((asset) => (
+              <tr key={asset.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   {asset.asset_number}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   {asset.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   {format(new Date(asset.tracking_date), 'yyyy-MM-dd')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       asset.status === 'completed'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
                     }`}
                   >
                     {asset.status === 'completed' ? '已修復' : '待維修'}
@@ -507,29 +585,29 @@ export default function DashboardPage() {
                   {asset.status === 'pending' ? (
                     <button
                       onClick={() => handleComplete(asset.id)}
-                      className="p-1.5 rounded-full hover:bg-gray-100 group transition-colors"
+                      className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 group transition-colors"
                       title="標記為已修復"
                     >
-                      <Wrench className="w-5 h-5 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                      <Wrench className="w-5 h-5 text-gray-400 group-hover:text-indigo-600 dark:text-gray-500 dark:group-hover:text-indigo-400 transition-colors" />
                     </button>
                   ) : (
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
                         <div className="font-medium">
-                          <span className="font-bold">修復時間：</span>
+                          <span className="font-bold dark:text-gray-200">修復時間：</span>
                           {format(new Date(asset.completion_date!), 'yyyy/MM/dd HH:mm:ss')}
                         </div>
                         <div className="font-medium">
-                          <span className="font-bold">處理人員：</span>
+                          <span className="font-bold dark:text-gray-200">處理人員：</span>
                           {asset.completed_by}
                         </div>
                       </div>
                       <button
                         onClick={() => handleRevertToPending(asset.id)}
-                        className="p-1.5 rounded-full hover:bg-gray-100 group transition-colors ml-4"
+                        className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 group transition-colors ml-4"
                         title="轉為待維修"
                       >
-                        <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-yellow-600 transition-colors" />
+                        <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-yellow-600 dark:text-gray-500 dark:group-hover:text-yellow-400 transition-colors" />
                       </button>
                     </div>
                   )}
