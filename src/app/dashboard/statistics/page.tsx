@@ -1,13 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Card, Title } from '@tremor/react'
 import { createClient } from '@/utils/supabase/client'
-import { subMonths, format, startOfYear, endOfYear } from 'date-fns'
+import { format, startOfYear, endOfYear } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import {
   PieChart, Pie, Cell, ResponsiveContainer,
-  ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   BarChart
 } from 'recharts'
 
@@ -74,6 +73,20 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   }
   return null
 }
+
+// 自定義卡片組件
+const Card = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+  <div className={`p-6 rounded-lg ${className}`}>
+    {children}
+  </div>
+)
+
+// 自定義標題組件
+const Title = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
+  <h3 className={`text-lg font-semibold ${className}`}>
+    {children}
+  </h3>
+)
 
 export default function StatisticsPage() {
   const [stats, setStats] = useState<AssetStats>({
