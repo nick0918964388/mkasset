@@ -100,6 +100,29 @@ export default function DashboardLayout({
                 {!isSidebarCollapsed && <span>資產追蹤</span>}
               </Link>
             </li>
+            <li>
+              <Link
+                href="/dashboard/statistics"
+                className={`flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 rounded-md ${
+                  isSidebarCollapsed ? 'justify-center' : ''
+                }`}
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+                {!isSidebarCollapsed && <span>統計分析</span>}
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

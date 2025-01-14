@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { Wrench, BarChart3 } from 'lucide-react'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -29,6 +30,19 @@ export default function RootLayout({
   //   localStorage.setItem('darkMode', String(newDarkMode))
   //   document.documentElement.classList.toggle('dark')
   // }
+
+  const menuItems = [
+    {
+      title: '待修資產',
+      href: '/dashboard',
+      icon: <Wrench className="w-6 h-6" />
+    },
+    {
+      title: '維修統計',
+      href: '/statistics',
+      icon: <BarChart3 className="w-6 h-6" />
+    }
+  ]
 
   return (
     <html lang="zh-TW" className={darkMode ? 'dark' : ''}>
