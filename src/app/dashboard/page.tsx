@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { format, addDays, addMonths, isSameDay } from 'date-fns'
-import { Search,  Wrench, RotateCcw, ArrowUpDown, ArrowUp, ArrowDown, Pencil, Trash2 } from 'lucide-react'
+import { Search,  Wrench, ArrowUpDown, ArrowUp, ArrowDown, Pencil, Trash2 } from 'lucide-react'
 
 // 初始化 Supabase 客戶端
 const supabase = createClient(
@@ -105,7 +105,7 @@ export default function DashboardPage() {
       .from('assets')
       .select('*', { count: 'exact' })
       .range(from, to)
-      .order('tracking_date', { ascending: true })
+      .order('tracking_date', { ascending: false })
 
     if (error) {
       console.error('Error loading assets:', error)
@@ -172,7 +172,16 @@ export default function DashboardPage() {
       }
       
       // 明日追蹤篩選
-      if (showTomorrowOnly && !isSameDay(new Date(asset.tracking_date), addDays(new Date(), 1))) {
+      if (showTomorrowOnly) {
+        const today = new Date()
+        const tomorrow = addDays(today, 1)
+        const trackingDate = new Date(asset.tracking_date)
+        
+        // 只显示：1. 明天要追踪的 或 2. 已过期但未完成的
+        if (asset.status === 'pending' && 
+            (isSameDay(trackingDate, tomorrow) || trackingDate < today)) {
+          return true
+        }
         return false
       }
 

@@ -30,12 +30,6 @@ interface AssetStats {
   }[]
 }
 
-// 狀態映射表
-const STATUS_MAP: { [key: string]: string } = {
-  'pending': '待維修',
-  'completed': '已完成維修'
-}
-
 // 更新配色方案
 const CHART_COLORS = {
   // 狀態分布圖配色
@@ -56,13 +50,23 @@ const CHART_COLORS = {
   }
 }
 
+interface TooltipProps {
+  active?: boolean
+  payload?: {
+    name: string
+    value: number
+    color: string
+  }[]
+  label?: string
+}
+
 // 自定義工具提示
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-gray-800 p-3 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
         <p className="text-gray-600 dark:text-gray-300">{label}</p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index) => (
           <p key={index} style={{ color: entry.color }}>
             {entry.name}: {entry.value}
             {entry.name === '月度數量' ? '件' : ''}

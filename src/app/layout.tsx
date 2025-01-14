@@ -31,18 +31,7 @@ export default function RootLayout({
   //   document.documentElement.classList.toggle('dark')
   // }
 
-  const menuItems = [
-    {
-      title: '待修資產',
-      href: '/dashboard',
-      icon: <Wrench className="w-6 h-6" />
-    },
-    {
-      title: '維修統計',
-      href: '/statistics',
-      icon: <BarChart3 className="w-6 h-6" />
-    }
-  ]
+ 
 
   return (
     <html lang="zh-TW" className={darkMode ? 'dark' : ''}>
