@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { format, addDays, addMonths, isSameDay } from 'date-fns'
-import { Search, CheckCircle2, Wrench, RotateCcw } from 'lucide-react'
+import { Search,  Wrench, RotateCcw } from 'lucide-react'
 
 // 初始化 Supabase 客戶端
 const supabase = createClient(
