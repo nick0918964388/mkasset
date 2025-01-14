@@ -22,13 +22,13 @@ export default function RootLayout({
     }
   }, [])
 
-  // 切換深色模式
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode
-    setDarkMode(newDarkMode)
-    localStorage.setItem('darkMode', String(newDarkMode))
-    document.documentElement.classList.toggle('dark')
-  }
+  // // 切換深色模式
+  // const toggleDarkMode = () => {
+  //   const newDarkMode = !darkMode
+  //   setDarkMode(newDarkMode)
+  //   localStorage.setItem('darkMode', String(newDarkMode))
+  //   document.documentElement.classList.toggle('dark')
+  // }
 
   return (
     <html lang="zh-TW" className={darkMode ? 'dark' : ''}>

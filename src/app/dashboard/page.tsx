@@ -153,7 +153,7 @@ export default function DashboardPage() {
     const aValue = a[sortConfig.key]
     const bValue = b[sortConfig.key]
 
-    if (aValue === null || bValue === null) return 0
+    if (aValue === undefined || bValue === undefined) return 0
 
     let comparison = 0
     if (typeof aValue === 'string' && typeof bValue === 'string') {
