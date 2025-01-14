@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { Wrench, BarChart3 } from 'lucide-react'
+
 
 const inter = Inter({ subsets: ["latin"] })
 

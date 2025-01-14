@@ -333,28 +333,7 @@ export default function DashboardPage() {
     }
   }
 
-  // 更新資產狀態為待維修
-  const handleRevertToPending = async (id: number) => {
-    try {
-      const { error } = await supabase
-        .from('assets')
-        .update({
-          status: 'pending',
-          completion_date: null,
-          completed_by: null
-        })
-        .eq('id', id)
 
-      if (error) {
-        console.error('Error reverting asset:', error.message)
-        return
-      }
-
-      await loadAssets()
-    } catch (err) {
-      console.error('Error in handleRevertToPending:', err)
-    }
-  }
 
   // 過濾建議選項
   const filterSuggestions = (type: 'numbers' | 'names', value: string) => {
