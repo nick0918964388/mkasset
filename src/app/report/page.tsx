@@ -28,7 +28,7 @@ export default function ReportPage() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
-  const router = useRouter()
+  
 
   useEffect(() => {
     return () => {
