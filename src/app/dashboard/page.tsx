@@ -257,18 +257,6 @@ export default function DashboardPage() {
     e.preventDefault()
     try {
       console.log('Attempting to add asset:', newAsset)
-      
-      // 先检查是否已存在相同的资产编号
-      const { data: existingAsset } = await supabase
-        .from('assets')
-        .select('id')
-        .eq('asset_number', newAsset.asset_number)
-        .single()
-
-      if (existingAsset) {
-        alert('此財產編號已存在，請使用其他編號')
-        return
-      }
 
       const { error } = await supabase
         .from('assets')
@@ -333,7 +321,30 @@ export default function DashboardPage() {
     }
   }
 
+  // 添加重新開啟維修的處理函數
+  const handleReopen = async (id: number) => {
+    try {
+      const { error } = await supabase
+        .from('assets')
+        .update({
+          status: 'pending',
+          completion_date: null,
+          completed_by: null
+        })
+        .eq('id', id)
 
+      if (error) {
+        console.error('Error reopening asset:', error.message)
+        alert('重新開啟維修失敗')
+        return
+      }
+
+      await loadAssets(true)
+    } catch (err) {
+      console.error('Error in handleReopen:', err)
+      alert('重新開啟維修時發生錯誤')
+    }
+  }
 
   // 過濾建議選項
   const filterSuggestions = (type: 'numbers' | 'names', value: string) => {
@@ -732,15 +743,24 @@ export default function DashboardPage() {
                           </button>
                         </>
                       ) : (
-                        <div className="text-sm text-gray-600 dark:text-gray-300">
-                          <div className="font-medium">
-                            <span className="font-bold dark:text-gray-200">修復時間：</span>
-                            {format(new Date(asset.completion_date!), 'yyyy/MM/dd HH:mm:ss')}
+                        <div className="flex items-center space-x-4">
+                          <div className="text-sm text-gray-600 dark:text-gray-300">
+                            <div className="font-medium">
+                              <span className="font-bold dark:text-gray-200">修復時間：</span>
+                              {format(new Date(asset.completion_date!), 'yyyy/MM/dd HH:mm:ss')}
+                            </div>
+                            <div className="font-medium">
+                              <span className="font-bold dark:text-gray-200">處理人員：</span>
+                              {asset.completed_by}
+                            </div>
                           </div>
-                          <div className="font-medium">
-                            <span className="font-bold dark:text-gray-200">處理人員：</span>
-                            {asset.completed_by}
-                          </div>
+                          <button
+                            onClick={() => handleReopen(asset.id)}
+                            className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 group transition-colors"
+                            title="重新開啟維修"
+                          >
+                            <Wrench className="w-5 h-5 text-gray-400 group-hover:text-yellow-600 dark:text-gray-500 dark:group-hover:text-yellow-400 transition-colors" />
+                          </button>
                         </div>
                       )}
                     </div>
