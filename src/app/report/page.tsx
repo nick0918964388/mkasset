@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { useRouter } from 'next/navigation'
 import { format, addDays, addMonths } from 'date-fns'
 import { Html5QrcodeScanner } from 'html5-qrcode'
 import { Camera } from 'lucide-react'
